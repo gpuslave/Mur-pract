@@ -27,7 +27,7 @@ public:
 
         for (int i = 0; i < tableSize; i++)
         {
-            dict[i] = nullptr;
+            dict[i] = new data_t(i, rand() % 20);
         }
     }
 
@@ -72,8 +72,8 @@ public:
     {
         for (int i = 0; i < tableSize; i++)
         {
-            // std::cout << dict[i].key << "\\-/" << dict[i].val << std::endl;
-            std::cout << dict[i] << std::endl;
+            std::cout << std::setw(3) << dict[i]->key << " --- " << std::setw(2) << dict[i]->val << std::endl;
+            // std::cout << dict[i] << std::endl;
         }
     }
 
