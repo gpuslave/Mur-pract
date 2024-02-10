@@ -1,4 +1,4 @@
 ## Uni practice of DSA
 * Hash-table and hash-functions
- * Chained table
- * Linear probing
+  * Collision resolving by chaining
+  * Collision resolving by linear probing
