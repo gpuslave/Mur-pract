@@ -5,6 +5,9 @@
 #include <vector>
 #include <algorithm>
 #include <iomanip>
+#include <cmath>
+#include <cassert>
+#include <cctype>
 
 // #define NIL -1
 // typedef int key_t;
@@ -14,9 +17,9 @@ template <typename key_t, typename val_t>
 class HashTable
 {
 public:
-    virtual void insert(key_t key, val_t val) = 0;
+    virtual int insert(key_t key, val_t val) = 0;
     virtual bool remove(key_t key) = 0;
-    virtual bool find(key_t key) = 0;
+    virtual int find(key_t key) = 0;
 
     virtual void clear() = 0;
     virtual int getSize() = 0;
