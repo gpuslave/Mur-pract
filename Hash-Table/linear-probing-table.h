@@ -58,27 +58,34 @@ private:
 
     void expandTable()
     {
-        int newSize = closestPrimeTo(tableSize);
-        dict.resize(newSize, nullptr);
+        int newSize = closestPrimeTo(tableSize * 2);
+        std::vector<data_t_p> newVec(newSize, nullptr);
+
+        for (int i = 0; i < newVec.size(); i++)
+            newVec[i] = nullptr;
+
         tableSize = newSize;
-        // vector<data_t_p> newDict(newSize, nullptr);
-        // for (int i = 0; i < tableSize; i++)
-        // {
-        //     newDict = dict[i];
-        //     dict[i] = nullptr;
-        // }
 
-        // while (tableSize <= newSize)
-        // {
-        //     data_t_p temp = nullptr;
-        //     dict.push_back(temp);
-        //     tableSize++;
-        // }
-
-        // if (tableSize == newSize)
-        //     std::cout << "win";
-
-        // dict.resize(newSize);
+        for (int j = 0; j < dict.size(); j++)
+        {
+            if (dict[j] == nullptr)
+                continue;
+            int i = 0;
+            int q = 0;
+            while (i != newSize)
+            {
+                q = unif_hash(dict[j]->key, i);
+                if (newVec[q] == nullptr)
+                {
+                    newVec[q] = dict[j];
+                    break;
+                }
+                i++;
+            }
+        }
+        // dict.resize(newSize, nullptr);
+        std::swap(dict, newVec);
+        newVec.clear();
     }
 
     void calcLoadFactor()
@@ -98,37 +105,27 @@ private:
                 calcLoadFactor();
             }
         }
+        else
+            loadFactor = 0;
     }
 
 public:
-    LinearProbingTable(int tableSize)
+    LinearProbingTable(int tableSize = 17)
     {
         this->tableSize = tableSize;
         dict.resize(tableSize, nullptr);
 
         // for (int i = 0; i < tableSize; i++)
         // {
-        //     dict[i] = new data_t(i + int('a'), rand() % 20);
+        //     dict[i] = nullptr;
         // }
-
-        // for (data_t_p elem : dict)
-        //     elem = nullptr;
-
-        for (int i = 0; i < tableSize; i++)
-        {
-            dict[i] = nullptr;
-        }
     }
 
-    ~LinearProbingTable() = default;
-
-    // void testPriming()
-    // {
-    //     for (size_t i = 0; i < 20; i++)
-    //     {
-    //         std::cout << i << "  " << isPrime(i) << "  closest prime: " << closestPrimeTo(i) << std::endl;
-    //     }
-    // }
+    ~LinearProbingTable()
+    {
+        clear();
+        dict.clear();
+    }
 
     int insert(key_t key, val_t val)
     {
@@ -153,10 +150,17 @@ public:
     int find(key_t key)
     {
         int i = 0;
-        int q = unif_hash(key, i);
-        while (dict[q] != nullptr && i != tableSize)
+        // this->print();
+        while (i != tableSize)
         {
-            q = unif_hash(key, i);
+            int q = unif_hash(key, i);
+            if (dict[q] == nullptr)
+                return -1;
+
+            // std::cout << std::endl
+            //           << "i:" << i << " "
+            //           << "q:" << q << " "
+            //           << dict[q]->val << std::endl;
             if (dict[q]->key == key)
                 return q;
             i++;
@@ -164,14 +168,44 @@ public:
         return -1;
     }
 
-    bool remove(key_t)
+    bool remove(key_t key)
     {
+        int q = find(key);
+        bool flag = true;
+        if (q != -1)
+        {
+            while (flag)
+            {
+                delete dict[q];
+                dict[q] = nullptr;
+                int bucket = q;
+
+                bucket = (bucket + 1) % tableSize;
+                if (dict[bucket] == nullptr)
+                    return true;
+                key_t bucket_key = dict[bucket]->key;
+
+                while (inverse_unif_hash(bucket_key, q) < inverse_unif_hash(bucket_key, bucket))
+                {
+                    bucket = (bucket + 1) % tableSize;
+                    if (dict[bucket] == nullptr)
+                    {
+                        // flag = false;
+                        return true;
+                    }
+                    bucket_key = dict[bucket]->key;
+                }
+
+                dict[q] = dict[bucket];
+                dict[bucket] = nullptr;
+            }
+        }
         return false;
     }
 
     void clear()
     {
-        for (size_t i = 0; i < dict.capacity(); i++)
+        for (size_t i = 0; i < dict.size(); i++)
         {
             if (dict[i] != nullptr)
             {
@@ -179,6 +213,8 @@ public:
                 dict[i] = nullptr;
             }
         }
+        stored = 0;
+        updateLoadFactor();
     }
 
     int getSize()
@@ -193,7 +229,7 @@ public:
 
     bool isEmpty()
     {
-        for (int i = 0; i < dict.capacity(); i++)
+        for (int i = 0; i < dict.size(); i++)
         {
             if (dict[i] != nullptr)
             {
@@ -232,5 +268,10 @@ protected:
     int unif_hash(key_t key, int i)
     {
         return (hash(key) + i) % tableSize;
+    }
+
+    int inverse_unif_hash(key_t key, int u_hash)
+    {
+        return (u_hash - hash(key)) % tableSize;
     }
 };
