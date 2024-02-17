@@ -1,1 +1,10 @@
-E A S Y Q U T I O N
+static int b
+myFunc()
+assert()
+double series
+virtual insert()
+float series_fl
+constexpr const_func()
+print()
+show()
+struct data_type
