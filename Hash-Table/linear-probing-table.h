@@ -243,7 +243,7 @@ public:
             return dict[q]->val;
         }
         else
-            return NULL; // тут надо выбрасывать исключение но мне лень это писать
+            return -1; // тут надо выбрасывать исключение но мне лень это писать
     }
 
     void print()
@@ -252,7 +252,7 @@ public:
         for (int i = 0; i < tableSize; i++)
         {
             if (dict[i])
-                std::cout << std::setw(2) << i << " " << std::setw(4) << hash(dict[i]->key) << std::setw(3) << dict[i]->key << " --- " << std::setw(2) << dict[i]->val << std::setw(4) << int(d_state[i]) << std::endl;
+                std::cout << std::setw(2) << i << " " << std::setw(4) << hash(dict[i]->key) << std::setw(3) << dict[i]->key << " --- " << std::setw(2) << dict[i]->val << std::endl;
             else if (d_state[i] == DELETED)
             {
                 std::cout << std::setw(2) << i << " "
@@ -262,10 +262,10 @@ public:
                 std::cout << std::setw(2) << i << " "
                           << "FREE" << std::endl;
         }
-        std::cout << "debug: " << stored << "-" << dict.size() << " " << tableSize << "-" << dict.capacity() << " " << loadFactor << std::endl;
-        for (auto elem : d_state)
-            std::cout << elem << " ";
-        std::cout << d_state.size();
+        // std::cout << "debug: " << stored << "-" << dict.size() << " " << tableSize << "-" << dict.capacity() << " " << loadFactor << std::endl;
+        // for (auto elem : d_state)
+        //     std::cout << elem << " ";
+        // std::cout << d_state.size();
         std::cout << std::endl
                   << "------------------------" << std::endl;
     }

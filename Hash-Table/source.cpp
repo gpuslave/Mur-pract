@@ -2,6 +2,7 @@
 #include "hash-table.h"
 // #include "separate-chaining-table.h"
 #include "linear-probing-table.h"
+#include "cli-menu.h"
 
 using namespace std;
 
@@ -101,61 +102,64 @@ int main()
     // for (symbol_struct *ptr : vec)
     //     cout << ptr->attribute << " " << ptr->type << " " << ptr->symbol_name << endl;
 
+    Menu<LinearProbingTable<char, int>> menu;
+    menu.start();
     // LINEAR PROBING
-    LinearProbingTable<char, int> a;
+    // LinearProbingTable<char, int> a;
 
+    // // a.print();
+    // // cout << endl
+    // //      << a.isEmpty() << endl;
+
+    // a.insert('a', 1);
     // a.print();
-    // cout << endl
-    //      << a.isEmpty() << endl;
+    // a.insert('c', 2);
+    // a.print();
+    // a.insert('b', 3);
+    // a.print();
+    // a.insert('B', 4);
+    // a.print();
+    // a.insert('B', 4);
+    // a.print();
+    // a.insert('b', 3);
+    // a.print();
+    // a.insert('d', 5);
+    // a.print();
+    // a.insert('u', 6);
+    // a.print();
+    // a.insert('h', 7);
+    // a.insert('p', 8);
+    // a.insert('R', 9);
+    // a.print();
+    // a.insert('v', 10);
+    // a.print();
+    // a.insert('i', 10);
+    // a.print();
+    // a.insert('y', 10);
+    // a.print();
+    // a.insert('r', 10);
+    // a.print();
+    // a.remove('r');
+    // a.print();
+    // a.remove('y');
+    // a.print();
+    // a.remove('y');
+    // a.print();
+    // a.insert('r', 12);
+    // a.print();
+    // a.insert('r', 12);
+    // a.print();
+    // a.insert('y', 12);
+    // a.print();
+    // a.clear();
+    // a.print();
+    // a.insert('r', 12);
+    // a.print();
+    // a.insert('a', 12);
+    // a.print();
 
-    a.insert('a', 1);
-    a.print();
-    a.insert('c', 2);
-    a.print();
-    a.insert('b', 3);
-    a.print();
-    a.insert('B', 4);
-    a.print();
-    a.insert('B', 4);
-    a.print();
-    a.insert('b', 3);
-    a.print();
-    a.insert('d', 5);
-    a.print();
-    a.insert('u', 6);
-    a.print();
-    a.insert('h', 7);
-    a.insert('p', 8);
-    a.insert('R', 9);
-    a.print();
-    a.insert('v', 10);
-    a.print();
-    a.insert('i', 10);
-    a.print();
-    a.insert('y', 10);
-    a.print();
-    a.insert('r', 10);
-    a.print();
-    a.remove('r');
-    a.print();
-    a.remove('y');
-    a.print();
-    a.remove('y');
-    a.print();
-    a.insert('r', 12);
-    a.print();
-    a.insert('r', 12);
-    a.print();
-    a.insert('y', 12);
-    a.print();
-    a.clear();
-    a.print();
-    a.insert('r', 12);
-    a.print();
-    a.insert('a', 12);
-    a.print();
+    // cout << a.find('y') << "  " << a.find('b') << "  " << a.find('B') << endl;
 
-    cout << a.find('y') << "  " << a.find('b') << "  " << a.find('B') << endl;
     // cout << int(a.remove('B'));
     // a.print();
     // cout << int(a.remove('B'));
