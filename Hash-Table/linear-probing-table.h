@@ -5,6 +5,13 @@ template <typename key_t, typename val_t>
 class LinearProbingTable : public HashTable<key_t, val_t>
 {
 private:
+    enum State
+    {
+        FREE = 1,
+        BUSY = 2,
+        DELETED = 3
+    };
+
     int tableSize;
     int stored;
     double loadFactor;
@@ -28,6 +35,7 @@ private:
     };
     using data_t_p = data_t *;
     std::vector<data_t_p> dict;
+    std::vector<State> d_state;
 
     bool isPrime(const int &num)
     {
@@ -60,30 +68,37 @@ private:
     {
         int newSize = closestPrimeTo(tableSize * 2);
         std::vector<data_t_p> newVec(newSize, nullptr);
+        d_state.clear();
+        d_state.resize(newSize, FREE);
 
+        // в строчке 70 это уже есть, но я ей не верю.
         for (int i = 0; i < newVec.size(); i++)
             newVec[i] = nullptr;
 
         tableSize = newSize;
 
+        // re-hash
         for (int j = 0; j < dict.size(); j++)
         {
             if (dict[j] == nullptr)
                 continue;
+
             int i = 0;
             int q = 0;
+            // можно сделать for но мне так удобнее
             while (i != newSize)
             {
                 q = unif_hash(dict[j]->key, i);
                 if (newVec[q] == nullptr)
                 {
                     newVec[q] = dict[j];
+                    d_state[q] = BUSY;
                     break;
                 }
                 i++;
             }
         }
-        // dict.resize(newSize, nullptr);
+
         std::swap(dict, newVec);
         newVec.clear();
     }
@@ -95,6 +110,7 @@ private:
 
     void updateLoadFactor()
     {
+        // можно даже не делать if/else но так как-то читабельнее
         if (stored > 0)
         {
             calcLoadFactor();
@@ -114,17 +130,16 @@ public:
     {
         this->tableSize = tableSize;
         dict.resize(tableSize, nullptr);
-
-        // for (int i = 0; i < tableSize; i++)
-        // {
-        //     dict[i] = nullptr;
-        // }
+        d_state.resize(tableSize, FREE);
+        stored = 0;
+        loadFactor = 0;
     }
 
     ~LinearProbingTable()
     {
         clear();
         dict.clear();
+        d_state.clear();
     }
 
     int insert(key_t key, val_t val)
@@ -138,8 +153,13 @@ public:
             {
                 dict[q] = new data_t(key, val);
                 stored++;
+                d_state[q] = BUSY;
                 updateLoadFactor();
                 return q;
+            }
+            else if (dict[q]->key == key)
+            {
+                break;
             }
             i++;
         }
@@ -150,18 +170,12 @@ public:
     int find(key_t key)
     {
         int i = 0;
-        // this->print();
         while (i != tableSize)
         {
             int q = unif_hash(key, i);
-            if (dict[q] == nullptr)
+            if (dict[q] == nullptr && d_state[q] != DELETED)
                 return -1;
-
-            // std::cout << std::endl
-            //           << "i:" << i << " "
-            //           << "q:" << q << " "
-            //           << dict[q]->val << std::endl;
-            if (dict[q]->key == key)
+            if (dict[q] && dict[q]->key == key)
                 return q;
             i++;
         }
@@ -171,36 +185,17 @@ public:
     bool remove(key_t key)
     {
         int q = find(key);
-        bool flag = true;
-        if (q != -1)
+        if (q >= 0)
         {
-            while (flag)
-            {
-                delete dict[q];
-                dict[q] = nullptr;
-                int bucket = q;
-
-                bucket = (bucket + 1) % tableSize;
-                if (dict[bucket] == nullptr)
-                    return true;
-                key_t bucket_key = dict[bucket]->key;
-
-                while (inverse_unif_hash(bucket_key, q) < inverse_unif_hash(bucket_key, bucket))
-                {
-                    bucket = (bucket + 1) % tableSize;
-                    if (dict[bucket] == nullptr)
-                    {
-                        // flag = false;
-                        return true;
-                    }
-                    bucket_key = dict[bucket]->key;
-                }
-
-                dict[q] = dict[bucket];
-                dict[bucket] = nullptr;
-            }
+            delete dict[q];
+            dict[q] = nullptr;
+            d_state[q] = DELETED;
+            stored--;
+            updateLoadFactor();
+            return true;
         }
-        return false;
+        else
+            return false;
     }
 
     void clear()
@@ -212,6 +207,7 @@ public:
                 delete dict[i];
                 dict[i] = nullptr;
             }
+            d_state[i] = FREE;
         }
         stored = 0;
         updateLoadFactor();
@@ -250,13 +246,22 @@ public:
         for (int i = 0; i < tableSize; i++)
         {
             if (dict[i])
-                std::cout << std::setw(2) << i << " " << std::setw(4) << hash(dict[i]->key) << std::setw(3) << dict[i]->key << " --- " << std::setw(2) << dict[i]->val << std::endl;
+                std::cout << std::setw(2) << i << " " << std::setw(4) << hash(dict[i]->key) << std::setw(3) << dict[i]->key << " --- " << std::setw(2) << dict[i]->val << std::setw(4) << int(d_state[i]) << std::endl;
+            else if (d_state[i] == DELETED)
+            {
+                std::cout << std::setw(2) << i << " "
+                          << "DELETED" << std::endl;
+            }
             else
                 std::cout << std::setw(2) << i << " "
                           << "FREE" << std::endl;
         }
         std::cout << "debug: " << stored << "-" << dict.size() << " " << tableSize << "-" << dict.capacity() << " " << loadFactor << std::endl;
-        std::cout << "------------------------" << std::endl;
+        for (auto elem : d_state)
+            std::cout << elem << " ";
+        std::cout << d_state.size();
+        std::cout << std::endl
+                  << "------------------------" << std::endl;
     }
 
 protected:
