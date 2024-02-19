@@ -235,9 +235,15 @@ public:
         return true;
     }
 
-    val_t get(key_t)
+    val_t get(key_t key)
     {
-        return 0;
+        int q = find(key);
+        if (q >= 0)
+        {
+            return dict[q]->val;
+        }
+        else
+            return NULL; // тут надо выбрасывать исключение но мне лень это писать
     }
 
     void print()
