@@ -27,10 +27,10 @@ private:
         {
             if (this != &other)
             {
-                key = other.key;
-                val = other.val;
-                return *this;
+                this->key = other.key;
+                this->val = other.val;
             }
+            return *this;
         }
     };
     using data_t_p = data_t *;

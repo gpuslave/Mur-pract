@@ -1,6 +1,6 @@
 #include <fstream>
 #include "hash-table.h"
-// #include "separate-chaining-table.h"
+#include "separate-chaining-table.h"
 #include "linear-probing-table.h"
 #include "cli-menu.h"
 
@@ -102,8 +102,11 @@ int main()
     // for (symbol_struct *ptr : vec)
     //     cout << ptr->attribute << " " << ptr->type << " " << ptr->symbol_name << endl;
 
-    Menu<LinearProbingTable<char, int>> menu;
-    menu.start();
+    // Menu<LinearProbingTable<char, int>> menu;
+    // menu.start();
+
+    // CHAINING
+    // SeparateChainingTable<string, symbol_struct> a;
     // LINEAR PROBING
     // LinearProbingTable<char, int> a;
 
