@@ -1,192 +1,132 @@
 #include <fstream>
-#include "hash-table.h"
+// #include "hash-table.h"
 #include "separate-chaining-table.h"
-#include "linear-probing-table.h"
-#include "cli-menu.h"
+// #include "linear-probing-table.h"
+// #include "cli-menu.h"
 
 using namespace std;
 
-struct symbol_struct
+class SymbolTable
 {
-    string symbol_name;
-    string type;
-    string attribute;
-
-    symbol_struct(string s_n, string t = "none", string a = "none")
+private:
+    struct symbol_struct
     {
-        symbol_name = s_n;
-        type = t;
-        attribute = a;
+        string symbol_name;
+        string type;
+        string attribute;
+
+        symbol_struct(string s_n, string t = "none", string a = "none")
+        {
+            symbol_name = s_n;
+            type = t;
+            attribute = a;
+        }
+
+        symbol_struct(const symbol_struct &other)
+        {
+            symbol_name = other.symbol_name;
+            type = other.type;
+            attribute = other.attribute;
+        }
+
+        symbol_struct &operator=(const symbol_struct &other)
+        {
+            if (this != &other)
+            {
+                symbol_name = other.symbol_name;
+                type = other.type;
+                attribute = other.attribute;
+            }
+            return *this;
+        }
+    };
+
+    HashTable<string, symbol_struct> table;
+
+public:
+    friend std::ostream &operator<<(std::ostream &os, const symbol_struct &symbol)
+    {
+        os << symbol.symbol_name << " " << symbol.type << " " << symbol.attribute;
+        return os;
     }
+
+    void read_file(const string &FILE_NAME)
+    {
+        fstream FILE_IN(FILE_NAME);
+
+        string gls = "";
+        int cnt = 0;
+        while (getline(FILE_IN, gls))
+        {
+            cnt++;
+            string temp = "";
+            vector<string> symbol_pars;
+
+            for (size_t i = 0; i < gls.size(); i++)
+            {
+                char p = gls[i];
+                if (p != ' ' && gls.size() - 1 > i)
+                {
+                    temp += p;
+                }
+                else if (i == gls.size() - 1)
+                {
+                    temp += p;
+                    symbol_pars.push_back(temp);
+                    temp.clear();
+                }
+                else
+                {
+                    symbol_pars.push_back(temp);
+                    temp.clear();
+                }
+            }
+
+            switch (symbol_pars.size())
+            {
+            case 1:
+            {
+                // symbol_struct *temp_struct = new symbol_struct(symbol_pars[0], "function");
+                table.insert(symbol_pars[0], symbol_struct(symbol_pars[0], "function"));
+                break;
+            }
+            case 2:
+            {
+                if (symbol_pars[1][symbol_pars[1].size() - 1] == ')')
+                {
+                    table.insert(symbol_pars[1], symbol_struct(symbol_pars[1], "function", symbol_pars[0]));
+                }
+                else
+                {
+                    table.insert(symbol_pars[1], symbol_struct(symbol_pars[1], symbol_pars[0]));
+                }
+                break;
+            }
+            case 3:
+            {
+                table.insert(symbol_pars[2], symbol_struct(symbol_pars[2], symbol_pars[1], symbol_pars[0]));
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        FILE_IN.close();
+    }
+
+    void print_table()
+    {
+        table.print();
+    }
+
+    SymbolTable() : table(17) {}
 };
-
-vector<symbol_struct *> read_file(const string &FILE_NAME)
-{
-    fstream FILE_IN(FILE_NAME);
-    vector<symbol_struct *> main_vec;
-
-    string gls = "";
-    int cnt = 0;
-    while (getline(FILE_IN, gls))
-    {
-        cnt++;
-        string temp = "";
-        vector<string> symbol_pars;
-        for (size_t i = 0; i < gls.size(); i++)
-        {
-            char p = gls[i];
-            if (p != ' ' && gls.size() - 1 > i)
-            {
-                temp += p;
-            }
-            else if (i == gls.size() - 1)
-            {
-                temp += p;
-                symbol_pars.push_back(temp);
-                temp.clear();
-            }
-            else
-            {
-                symbol_pars.push_back(temp);
-                temp.clear();
-            }
-        }
-
-        switch (symbol_pars.size())
-        {
-        case 1:
-        {
-            symbol_struct *temp_struct = new symbol_struct(symbol_pars[0], "function");
-            main_vec.push_back(temp_struct);
-            break;
-        }
-        case 2:
-        {
-            if (symbol_pars[1][symbol_pars.size() - 1] == ')')
-            {
-                symbol_struct *temp_struct = new symbol_struct(symbol_pars[1], "function", symbol_pars[0]);
-                main_vec.push_back(temp_struct);
-            }
-            else
-            {
-                symbol_struct *temp_struct = new symbol_struct(symbol_pars[1], symbol_pars[0]);
-                main_vec.push_back(temp_struct);
-            }
-            break;
-        }
-        case 3:
-        {
-            symbol_struct *temp_struct = new symbol_struct(symbol_pars[2], symbol_pars[1], symbol_pars[0]);
-            main_vec.push_back(temp_struct);
-            break;
-        }
-
-        default:
-            break;
-        }
-        // for (string str : symbol_pars)
-        //     cout << str;
-        // cout << endl;
-        // cout << symbol_pars.size() << endl;
-    }
-
-    FILE_IN.close();
-    return main_vec;
-}
 
 int main()
 {
-    // string filename = "input.txt";
-    // vector<symbol_struct *> vec = read_file(filename);
-
-    // for (symbol_struct *ptr : vec)
-    //     cout << ptr->attribute << " " << ptr->type << " " << ptr->symbol_name << endl;
-
-    // Menu<LinearProbingTable<char, int>> menu;
-    // menu.start();
-
-    // CHAINING
-    // SeparateChainingTable<string, symbol_struct> a;
-    // LINEAR PROBING
-    // LinearProbingTable<char, int> a;
-
-    // // a.print();
-    // // cout << endl
-    // //      << a.isEmpty() << endl;
-
-    // a.insert('a', 1);
-    // a.print();
-    // a.insert('c', 2);
-    // a.print();
-    // a.insert('b', 3);
-    // a.print();
-    // a.insert('B', 4);
-    // a.print();
-    // a.insert('B', 4);
-    // a.print();
-    // a.insert('b', 3);
-    // a.print();
-    // a.insert('d', 5);
-    // a.print();
-    // a.insert('u', 6);
-    // a.print();
-    // a.insert('h', 7);
-    // a.insert('p', 8);
-    // a.insert('R', 9);
-    // a.print();
-    // a.insert('v', 10);
-    // a.print();
-    // a.insert('i', 10);
-    // a.print();
-    // a.insert('y', 10);
-    // a.print();
-    // a.insert('r', 10);
-    // a.print();
-    // a.remove('r');
-    // a.print();
-    // a.remove('y');
-    // a.print();
-    // a.remove('y');
-    // a.print();
-    // a.insert('r', 12);
-    // a.print();
-    // a.insert('r', 12);
-    // a.print();
-    // a.insert('y', 12);
-    // a.print();
-    // a.clear();
-    // a.print();
-    // a.insert('r', 12);
-    // a.print();
-    // a.insert('a', 12);
-    // a.print();
-
-    // cout << a.find('y') << "  " << a.find('b') << "  " << a.find('B') << endl;
-
-    // cout << int(a.remove('B'));
-    // a.print();
-    // cout << int(a.remove('B'));
-    // a.print();
-    // // int *a1 = new int(3);
-    // // int *a2 = new int(4);
-    // // int *a3 = new int(5);
-
-    // // vector<int *> v1 = {a1, a2, a3, a1};
-    // // vector<int *> v2 = {a3, a2, a1};
-    // // swap(v1, v2);
-    // // cout << *v1[0] << " - " << *a3;
-    // // cout << endl
-    // //      << v1.size() << v2.size();
-    // // cout << endl;
-    // // vector<int> u;
-    // // u.reserve(3);
-    // // u[0] = int(3);
-    // // u[1] = u[2] = 0;
-
-    // // cout << u[0];
-    // // u.resize(6, 0);
-    // // cout << u[0];
-
-    // // cout << endl
-    // //      << a.isEmpty() << endl;
+    string filename = "input.txt";
+    SymbolTable st;
+    st.read_file(filename);
+    st.print_table();
 }

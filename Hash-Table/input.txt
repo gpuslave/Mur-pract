@@ -8,3 +8,10 @@ constexpr const_func()
 print()
 show()
 struct data_type
+int aboba
+gho()
+giu()
+nbi()
+float trr
+double kdd
+virtual show()
