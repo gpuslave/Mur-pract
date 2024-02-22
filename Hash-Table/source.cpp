@@ -39,17 +39,17 @@ private:
             }
             return *this;
         }
+
+        friend std::ostream &operator<<(std::ostream &os, const symbol_struct &symbol)
+        {
+            os << symbol.symbol_name << " " << symbol.type << " " << symbol.attribute;
+            return os;
+        }
     };
 
     HashTable<string, symbol_struct> table;
 
 public:
-    friend std::ostream &operator<<(std::ostream &os, const symbol_struct &symbol)
-    {
-        os << symbol.symbol_name << " " << symbol.type << " " << symbol.attribute;
-        return os;
-    }
-
     void read_file(const string &FILE_NAME)
     {
         fstream FILE_IN(FILE_NAME);
@@ -115,6 +115,16 @@ public:
         FILE_IN.close();
     }
 
+    void insert(string symbol_name, string type = "none", string attribute = "none")
+    {
+        table.insert(symbol_name, symbol_struct(symbol_name, type, attribute));
+    }
+
+    symbol_struct lookup(string symbol_name)
+    {
+        return table.find(symbol_name);
+    }
+
     void print_table()
     {
         table.print();
@@ -129,4 +139,11 @@ int main()
     SymbolTable st;
     st.read_file(filename);
     st.print_table();
+
+    cout << st.lookup("print()");
+
+    st.insert("test_insert()", "function", "test");
+
+    st.print_table();
+    cout << st.lookup("test_insert()");
 }

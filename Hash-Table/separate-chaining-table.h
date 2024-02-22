@@ -10,11 +10,11 @@
 int my_hash(const std::string &symbolName)
 {
     const int x = 2;
-    std::string s = symbolName + "njkvyurewqoihbjivdc";
+    std::string s = symbolName + "njkvy";
     int result = 0;
     for (int i = s.length() - 1; i >= 0; --i)
     {
-        result = (result * x + s[i]) % INT_MAX;
+        result = abs((result * x + s[i])) % INT_MAX;
     }
 
     return result;
@@ -32,7 +32,7 @@ public:
 
     void insert(const Key &key, const Value &value)
     {
-        size_t idx = hash(key);
+        size_t idx = hash(key, table.size());
         table[idx].push_back(std::make_pair(key, value));
 
         if (1.0 * size() / table.size() >= 0.8)
@@ -41,9 +41,9 @@ public:
         }
     }
 
-    Value &find(const Key &key)
+    Value find(const Key &key)
     {
-        size_t idx = hash(key);
+        size_t idx = hash(key, table.size());
         auto it = std::find_if(table[idx].begin(), table[idx].end(),
                                [&key](const auto &pair)
                                { return pair.first == key; });
@@ -78,7 +78,7 @@ public:
 
     void del(const Key &key)
     {
-        size_t idx = hash(key);
+        size_t idx = hash(key, table.size());
         auto it = std::find_if(table[idx].begin(), table[idx].end(),
                                [&key](const auto &pair)
                                { return pair.first == key; });
@@ -92,6 +92,7 @@ public:
     void print()
     {
         int i = 1;
+        std::cout << std::endl;
         for (const auto &list : table)
         {
             std::cout << "Bucket " << i++ << ": ";
@@ -109,9 +110,9 @@ public:
 private:
     std::vector<std::list<std::pair<Key, Value>>> table;
 
-    size_t hash(const Key &key) const
+    size_t hash(const Key &key, const int &sizediv) const
     {
-        return my_hash(key) % table.size();
+        return my_hash(key) % sizediv;
         // return std::hash<Key>{}(key) % table.size();
     }
 
@@ -123,7 +124,7 @@ private:
         {
             for (const auto &pair : list)
             {
-                size_t idx = hash(pair.first) % newTable.size();
+                size_t idx = hash(pair.first, newTable.size()) % newTable.size();
                 newTable[idx].push_back(pair);
             }
         }
